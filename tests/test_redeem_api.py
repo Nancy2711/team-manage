@@ -73,3 +73,21 @@ class TestWarrantyCheck:
         assert body["success"] is True
         assert body["has_warranty"] is False
         assert body["can_reuse"] is False
+
+@pytest.fixture
+def demo_code(admin_client):
+    """测试库是干净的，所以要先造一张兑换码出来"""
+    admin_client.post("/admin/codes/generate", json={"type": "single", "code": "DEMO2026"})
+
+
+def test_uppercase_code_is_valid(client, demo_code):
+    """大写码能通过校验——这是当前的正常行为，要守住"""
+    resp = client.post("/redeem/verify", json={"code": "DEMO2026"})
+    assert resp.json()["valid"] is True
+
+
+@pytest.mark.xfail(reason="已知缺陷 001：小写码被判为不存在，修复后应通过")
+def test_lowercase_code_should_be_valid(client, demo_code):
+    """期望：同一个码的大小写应该等价。当前实现不满足，见缺陷报告 001"""
+    resp = client.post("/redeem/verify", json={"code": "demo2026"})
+    assert resp.json()["valid"] is True
