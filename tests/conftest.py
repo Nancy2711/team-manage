@@ -74,3 +74,17 @@ def openapi_spec(client) -> dict:
     resp = client.get("/openapi.json")
     assert resp.status_code == 200
     return resp.json()
+
+
+@pytest.fixture
+def db_conn():
+    """直接连到测试数据库的连接，用来验证「数据真的写进库了」。
+
+    用法：在测试函数参数里写上 db_conn，就能执行 SQL：
+        rows = db_conn.execute("SELECT code, status FROM redemption_codes").fetchall()
+    """
+    conn = sqlite3.connect(TEST_DB_PATH)
+    try:
+        yield conn
+    finally:
+        conn.close()
