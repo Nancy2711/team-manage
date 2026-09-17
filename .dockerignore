@@ -19,3 +19,12 @@ Dockerfile
 *.md
 auggie_help.txt
 openai-api.md
+
+# 测试产物
+.pytest_cache/
+.coverage
+htmlcov/
+reports/
+*.bak
+*.db-shm
+*.db-wal
